@@ -12,15 +12,14 @@ from string import punctuation
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
-import pytorch_lightning as pl
-
-
 from transformers import (
     AdamW,
     T5ForConditionalGeneration,
     T5Tokenizer,
     get_linear_schedule_with_warmup
 )
+
+from env import DATA_DIR, PRETRAINED_MODEL_NAME
 
 # 乱数シードの設定
 def set_seed(seed):
