@@ -5,7 +5,7 @@ PRETRAINED_MODEL_NAME = "sonoisa/t5-base-japanese"
 MODEL_NAME = "daiki7069/t5_ad_kw_epoch8"
 
 # データセット一時保存場所
-DATA_DIR = "/home/daiki_shibata/pj/ad-generation/RSL-PR-remote/t5_ad/__temp__"
+DATA_DIR = "/home/daiki_shibata/pj/ad-generation/RSL-PR-remote/ad_generation/__temp__"
 
 # データセットのURL
 TEST_URL = "hf://datasets/daiki7069/camera-minimal/test.csv"
