@@ -3,9 +3,9 @@ from transformers import T5ForConditionalGeneration, T5Tokenizer, AutoTokenizer,
 import argparse
 from huggingface_hub import login
 
-from env import MODEL_NAME, TEMP_MODEL_REPO
-from params import args_dict
-from normalization import normalize_text
+from src.util.env import MODEL_NAME, TEMP_MODEL_REPO
+from src.util.params import args_dict
+from src.util.normalization import normalize_text
 
 def main():
     # huggingfaceログイン

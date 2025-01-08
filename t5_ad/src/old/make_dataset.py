@@ -1,8 +1,8 @@
 import pandas as pd
 
 from load_data import df_train, df_dev, df_test
-from env import DATA_DIR
-from normalization import normalize_text
+from t5_ad.util.env import DATA_DIR
+from t5_ad.util.normalization import normalize_text
 
 def make_tsv(self) -> None:
     # 学習データ

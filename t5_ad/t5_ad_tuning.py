@@ -1,11 +1,11 @@
 import argparse
-from dataset_handler import DatasetHandler
-from env import TEST_URL, DEV_URL, TRAIN_URL
-from env import PRETRAINED_MODEL_NAME
-from tsv_dataset import TsvDataset
-from params import args_dict
-from env import TEMP_MODEL_REPO
-from t5_fine_tuner import T5FineTuner
+from src.tuning.dataset_handler import DatasetHandler
+from src.util.env import TEST_URL, DEV_URL, TRAIN_URL
+from src.util.env import PRETRAINED_MODEL_NAME
+from src.tuning.tsv_dataset import TsvDataset
+from src.util.params import args_dict
+from src.util.env import TEMP_MODEL_REPO
+from src.tuning.t5_fine_tuner import T5FineTuner
 import torch
 from torch.utils.data import DataLoader
 import pytorch_lightning as pl
