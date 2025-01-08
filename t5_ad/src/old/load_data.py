@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-from env import DATA_DIR
+from t5_ad.util.env import DATA_DIR
 
 # データセット保存用の一時ディレクトリを作成
 os.makedirs(DATA_DIR)

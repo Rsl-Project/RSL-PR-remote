@@ -19,7 +19,7 @@ from transformers import (
     get_linear_schedule_with_warmup
 )
 
-from env import DATA_DIR, PRETRAINED_MODEL_NAME
+from src.util.env import DATA_DIR, PRETRAINED_MODEL_NAME
 
 # 乱数シードの設定
 def set_seed(seed):

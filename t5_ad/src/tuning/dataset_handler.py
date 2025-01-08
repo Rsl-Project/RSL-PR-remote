@@ -1,7 +1,7 @@
 import pandas as pd
 import os
-from env import DATA_DIR
-from normalization import normalize_text
+from src.util.env import DATA_DIR
+from src.util.normalization import normalize_text
 
 class DatasetHandler():
     def __init__(self, test_url, dev_url, train_url):

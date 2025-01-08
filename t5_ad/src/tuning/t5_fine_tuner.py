@@ -6,7 +6,7 @@ from transformers import (
     T5Tokenizer,
     get_linear_schedule_with_warmup
 )
-from tsv_dataset import TsvDataset
+from src.tuning.tsv_dataset import TsvDataset
 
 
 class T5FineTuner(pl.LightningModule):
