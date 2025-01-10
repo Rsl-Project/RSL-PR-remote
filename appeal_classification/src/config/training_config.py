@@ -1,5 +1,5 @@
 class TrainingConfig:
-    output_dir: str = "./results"
+    output_dir: str = "roberta-classification"
     learning_rate: float = 2e-5
     per_device_train_batch_size: int = 16
     per_device_eval_batch_size: int = 16
