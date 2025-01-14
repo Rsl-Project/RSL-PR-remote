@@ -130,7 +130,7 @@ class Preprocessor:
         
         return df_train_balanced
 
-    def preprocess(self, mode=0) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    def preprocess(self, mode=0, nan_class=True) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         '''
         データセットの前処理を行う.
         実行モードに応じて以下から処理を選択する.
@@ -149,10 +149,15 @@ class Preprocessor:
         df_dev_raw = pd.read_csv(self.dataset_config.dev_path)
         df_test_raw = pd.read_csv(self.dataset_config.test_path)
 
-        # appealing_axis が null の行を削除
-        df_train_raw = df_train_raw.dropna(subset=['appealing_axis'])
-        df_dev_raw = df_dev_raw.dropna(subset=['appealing_axis'])
-        df_test_raw = df_test_raw.dropna(subset=['appealing_axis'])
+        if nan_class:
+            df_train_raw['appealing_axis'].fillna(8.0, inplace=True)
+            df_dev_raw['appealing_axis'].fillna(8.0, inplace=True)
+            df_test_raw['appealing_axis'].fillna(8.0, inplace=True)
+        else:
+            # appealing_axis が null の行を削除
+            df_train_raw = df_train_raw.dropna(subset=['appealing_axis'])
+            df_dev_raw = df_dev_raw.dropna(subset=['appealing_axis'])
+            df_test_raw = df_test_raw.dropna(subset=['appealing_axis'])
 
         # # appealing_axis列をint型に変換したい
         # print("変換前の型:", df_train_raw['appealing_axis'].dtype)

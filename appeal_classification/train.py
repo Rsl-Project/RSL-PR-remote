@@ -13,7 +13,7 @@ from src.config.training_config import TrainingConfig
 from src.preprocess import Preprocessor
 
 
-def main():
+def train():
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
     # データセットの前処理
@@ -26,6 +26,7 @@ def main():
 
     # 学習, 評価データからラベルを取り出す
     unique_labels = df_train.label.unique()
+    print(f"ラベル: {unique_labels}")
 
     # id からラベルへの相互変換辞書を用意する
     id2label = dict([(id, label) for id, label in enumerate(unique_labels)])
@@ -116,7 +117,12 @@ def main():
 
     print("学習が終了しました。")
 
-    model.to('cpu') # TODO
+    # モデルアップロード
+    MODEL_REPO = "daiki7069/add-classification-9"
+    tokenizer.push_to_hub(MODEL_REPO)
+    model.push_to_hub(MODEL_REPO)
+
+    # model.to('cpu') # TODO
 
     # パイプラインの設定
     classifier = pipeline("text-classification", tokenizer=tokenizer, model=model)
@@ -134,6 +140,8 @@ def main():
     print("推論結果:")
     print(df_result)
 
+    del model
+
 
 if __name__ == "__main__":
-    main()
+    train()
