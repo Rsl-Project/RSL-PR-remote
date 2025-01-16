@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from datasets import Dataset
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
@@ -11,6 +12,7 @@ from src.config.dataset_config import DatasetConfig
 from src.config.pre_trained_model_config import PreTrainedModelConfig
 from src.config.training_config import TrainingConfig
 from src.preprocess import Preprocessor
+from src.util.learning_rate_logger import LearningRateLogger
 
 
 def train():
@@ -78,7 +80,7 @@ def train():
 
     training_config = TrainingConfig()
     training_args = TrainingArguments(
-        output_dir=training_config.output_dir,
+        output_dir=f"{training_config.output_dir}/epoch{training_config.num_train_epochs}_batch{training_config.per_device_train_batch_size}",
         learning_rate=training_config.learning_rate,
         per_device_train_batch_size=training_config.per_device_train_batch_size,
         per_device_eval_batch_size=training_config.per_device_eval_batch_size,
@@ -88,6 +90,7 @@ def train():
         save_strategy=training_config.save_strategy,
         load_best_model_at_end=training_config.load_best_model_at_end,
         push_to_hub=training_config.push_to_hub,
+        hub_model_id=training_config.hub_model_name,
     )
 
     def compute_metrics(eval_pred):
@@ -111,6 +114,7 @@ def train():
         tokenizer=tokenizer,
         data_collator=DataCollatorWithPadding(tokenizer=tokenizer),
         compute_metrics=compute_metrics,
+        callbacks=[LearningRateLogger]
     )
 
     trainer.train()
@@ -118,11 +122,11 @@ def train():
     print("学習が終了しました。")
 
     # モデルアップロード
-    MODEL_REPO = "daiki7069/add-classification-9"
+    MODEL_REPO = f"daiki7069/temp_model_class"
     tokenizer.push_to_hub(MODEL_REPO)
     model.push_to_hub(MODEL_REPO)
 
-    # model.to('cpu') # TODO
+    model.to('cpu') # TODO
 
     # パイプラインの設定
     classifier = pipeline("text-classification", tokenizer=tokenizer, model=model)
