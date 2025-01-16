@@ -2,3 +2,8 @@ __pycache__
 
 # 学習時のログ
 roberta-classification
+roberta-classification-model
+
+graph
+
+*.csv
