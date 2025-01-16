@@ -65,7 +65,7 @@ class LearningRateLogger(TrainerCallback):
     def on_train_end(self, args: TrainingArguments, state: TrainerState, control: TrainerControl, **kwargs):
         end_epoch = int(self.eval_epoch[-1])
         # ディレクトリが存在しない場合は作成
-        os.makedirs(f'graph/{end_epoch}', exist_ok=True)
+        os.makedirs(f'graph/epoch{end_epoch}', exist_ok=True)
 
         # 学習率曲線を描画
         plt.plot(self.train_epoch, self.train_loss, label="train_data")
