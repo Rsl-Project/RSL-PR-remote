@@ -1,0 +1,137 @@
+import torch
+from transformers import T5ForConditionalGeneration, \
+    T5Tokenizer, AutoTokenizer, \
+    AutoModelForSequenceClassification, AutoModelForSeq2SeqLM, PhrasalConstraint
+import argparse
+from huggingface_hub import login
+
+from src.util.env import MODEL_NAME, TEMP_MODEL_REPO
+from src.util.params import args_dict
+from src.util.normalization import normalize_text
+
+def main():
+    # huggingfaceログイン
+    # login()
+
+    # トークナイザー（SentencePiece）
+    tokenizer = T5Tokenizer.from_pretrained(MODEL_NAME, is_fast=True)
+
+    # 学習済みモデル
+    trained_model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME)
+    trained_model = T5ForConditionalGeneration.from_pretrained(MODEL_NAME)
+
+
+    # GPUの利用有無
+    USE_GPU = torch.cuda.is_available()
+    if USE_GPU:
+        trained_model.cuda()
+
+    # ハイパーパラメーターの設定
+    args = argparse.Namespace(**args_dict)
+
+    MAX_SOURCE_LENGTH = args.max_input_length   # 入力される記事本文の最大トークン数
+    MAX_TARGET_LENGTH = args.max_target_length  # 生成されるタイトルの最大トークン数
+
+    def preprocess_body(text):
+        return normalize_text(text.replace("\n", " "))
+
+    # 推論モード設定
+    trained_model.eval()
+
+    # 入力文字列
+    with open("./input_kw.txt", "r") as f:
+        body_kw = f.read()
+        f.close()
+
+    # 前処理とトークナイズを行う
+    inputs_kw = [preprocess_body(body_kw)]
+    batch_kw = tokenizer.batch_encode_plus(
+        inputs_kw, max_length=MAX_SOURCE_LENGTH, truncation=True,
+        padding="longest", return_tensors="pt")
+
+    input_ids_kw = batch_kw['input_ids']
+    input_mask_kw = batch_kw['attention_mask']
+    if USE_GPU:
+        input_ids_kw = input_ids_kw.cuda()
+        input_mask_kw = input_mask_kw.cuda()
+
+    # 入力文字列
+    with open("./input_str.txt", "r") as f:
+        body_str = f.read()
+        f.close()
+
+    # 前処理とトークナイズを行う
+    inputs_str = [preprocess_body(body_str)]
+    batch_str = tokenizer.batch_encode_plus(
+        inputs_str, max_length=MAX_SOURCE_LENGTH, truncation=True,
+        padding="longest", return_tensors="pt")
+
+    input_ids_str = batch_str['input_ids']
+    input_mask_str = batch_str['attention_mask']
+    if USE_GPU:
+        input_ids_str = input_ids_str.cuda()
+        input_mask_str = input_mask_str.cuda()
+
+    # 生成処理を行う
+    constraints = [
+        PhrasalConstraint(
+            tokenizer("人気", add_special_tokens=False).input_ids
+        ),
+        # PhrasalConstraint(
+        #     tokenizer("多数", add_special_tokens=False).input_ids
+        # ),
+        # PhrasalConstraint(
+        #     tokenizer("ランキング", add_special_tokens=False).input_ids
+        # ),
+    ]
+    outputs_kw = trained_model.generate(
+        input_ids=input_ids_kw, 
+        constraints=constraints,
+        # attention_mask=input_mask,
+        max_length=16,
+        temperature=1.0,          # 生成にランダム性を入れる温度パラメータ default=2.0
+        num_beams=10,             # ビームサーチの探索幅 default=10
+        # diversity_penalty=3.0,    # 生成結果の多様性を生み出すためのペナルティ default=3.0
+        # num_beam_groups=10,       # ビームサーチのグループ数 default=10
+        num_return_sequences=1,  # 生成する文の数 default=10
+        repetition_penalty=5.5,   # 同じ文の繰り返し（モード崩壊）へのペナルティ default=1.5
+    )
+    outputs_str = trained_model.generate(
+        input_ids=input_ids_str, 
+        constraints=constraints,
+        # attention_mask=input_mask,
+        max_length=16,
+        temperature=1.0,          # 生成にランダム性を入れる温度パラメータ default=2.0
+        num_beams=10,             # ビームサーチの探索幅 default=10
+        # diversity_penalty=3.0,    # 生成結果の多様性を生み出すためのペナルティ default=3.0
+        # num_beam_groups=10,       # ビームサーチのグループ数 default=10
+        num_return_sequences=1,  # 生成する文の数 default=10
+        repetition_penalty=5.5,   # 同じ文の繰り返し（モード崩壊）へのペナルティ default=1.5
+    )
+
+    # 生成されたトークン列を文字列に変換する
+    generated_titles_kw = [tokenizer.decode(ids, skip_special_tokens=True,
+                                        clean_up_tokenization_spaces=False)
+                        for ids in outputs_kw]
+    generated_titles_str = [tokenizer.decode(ids, skip_special_tokens=True,
+                                        clean_up_tokenization_spaces=False)
+                        for ids in outputs_str]
+
+    # # 入力文字列を表示
+    # print("===============")
+    # print(f"input: {body}")
+    # print(f"inputs: {inputs}")
+    # print(f"batch: {batch}")
+    # print(f"input_ids: {input_ids}")
+    # print(f"input_mask: {input_mask}")
+    # print("===============")
+
+    # 生成されたタイトルを表示する
+    for i, title in enumerate(generated_titles_kw):
+        print(f"[kw] {i+1:2}. {title}")
+    for i, title in enumerate(generated_titles_str):
+        print(f"[str] {i+1:2}. {title}")
+
+
+if __name__ == "__main__":
+    main()
