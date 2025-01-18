@@ -120,7 +120,7 @@ def main():
                                 for ids in outputs_str]
             for i, title in enumerate(generated_titles_str):
                 print(f"[str{index}], asset_id:{id} {i+1:2}. {title}")
-                writer.writerow([id, inputs_kw[0], i, generated_titles_str[0]])
+                writer.writerow([id, inputs_str[0], i, generated_titles_str[0]])
 
             index += 1
     
