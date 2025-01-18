@@ -42,7 +42,7 @@ def main():
         return s.replace("/", " ")
     
     ### kwから生成
-    with open('./app_kw2title_t5-ep20-wobody.csv', 'w') as f:
+    with open('./app3_kw2title_t5-ep20-wobody.csv', 'w') as f:
         writer = csv.writer(f)
         writer.writerow(["asset_id", "kw", "appealing_axis", "variation", "generated_title"])
         index = 0
@@ -115,7 +115,7 @@ def main():
 
 
     ### lp_meta_descriptionから生成
-    with open('./app_description2title_t5-ep20-wobody.csv', 'w') as f:
+    with open('./app3_description2title_t5-ep20-wobody.csv', 'w') as f:
         writer = csv.writer(f)
         writer.writerow(["asset_id", "lp_meta_description", "variation", "generated_title"])
         index = 0
