@@ -32,7 +32,7 @@ def main():
         "max_target_length": 64,  # 出力文の最大トークン数
         "train_batch_size":  16,  # 訓練時のバッチサイズ
         "eval_batch_size":   16,  # テスト時のバッチサイズ
-        "num_train_epochs":  8,  # 訓練するエポック数
+        "num_train_epochs":  40,  # 訓練するエポック数
         })
     args = argparse.Namespace(**args_dict)
 
@@ -52,8 +52,8 @@ def main():
     trainer.fit(model)
 
     # 最終エポックのモデルを保存
-    tokenizer.push_to_hub(TEMP_MODEL_REPO)
-    model.push(TEMP_MODEL_REPO)
+    tokenizer.push_to_hub(f"{TEMP_MODEL_REPO}_epoch{args.num_train_epochs}")
+    model.push(f"{TEMP_MODEL_REPO}_epoch{args.num_train_epochs}")
 
     del model
 
