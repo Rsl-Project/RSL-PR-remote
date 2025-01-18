@@ -84,6 +84,12 @@ def main():
                     PhrasalConstraint(
                         tokenizer(constraint_words[0], add_special_tokens=False).input_ids,
                     ),
+                    PhrasalConstraint(
+                        tokenizer(constraint_words[1], add_special_tokens=False).input_ids,
+                    ),
+                    PhrasalConstraint(
+                        tokenizer(constraint_words[2], add_special_tokens=False).input_ids,
+                    ),
                 ]
                 outputs_kw = trained_model.generate(
                     input_ids=input_ids_kw, attention_mask=input_mask_kw,
@@ -150,6 +156,12 @@ def main():
                 constraints = [
                     PhrasalConstraint(
                         tokenizer(constraint_words[0], add_special_tokens=False).input_ids,
+                    ),
+                    PhrasalConstraint(
+                        tokenizer(constraint_words[1], add_special_tokens=False).input_ids,
+                    ),
+                    PhrasalConstraint(
+                        tokenizer(constraint_words[2], add_special_tokens=False).input_ids,
                     ),
                 ]
 
