@@ -1,11 +1,10 @@
 import argparse
-from src.tuning.dataset_handler import DatasetHandler
+from src.tuning.dataset_handler_kw import DatasetHandlerKw
 from src.util.env import TEST_URL, DEV_URL, TRAIN_URL
 from src.util.env import PRETRAINED_MODEL_NAME
-from src.tuning.tsv_dataset import TsvDataset
 from src.util.params import args_dict
 from src.util.env import TEMP_MODEL_REPO
-from src.tuning.t5_fine_tuner import T5FineTuner
+from src.tuning.t5_fine_tuner_kw import T5FineTunerKw
 import torch
 from torch.utils.data import DataLoader
 import pytorch_lightning as pl
@@ -19,7 +18,7 @@ from transformers import (
 
 
 def main():
-    dataset = DatasetHandler(test_url=TEST_URL, dev_url=DEV_URL, train_url=TRAIN_URL)
+    dataset = DatasetHandlerKw(test_url=TEST_URL, dev_url=DEV_URL, train_url=TRAIN_URL)
 
     dataset.csv2tsv()
     
@@ -32,7 +31,7 @@ def main():
         "max_target_length": 64,  # 出力文の最大トークン数
         "train_batch_size":  16,  # 訓練時のバッチサイズ
         "eval_batch_size":   16,  # テスト時のバッチサイズ
-        "num_train_epochs":  40,  # 訓練するエポック数
+        "num_train_epochs":  20,  # 訓練するエポック数
         })
     args = argparse.Namespace(**args_dict)
 
@@ -47,13 +46,13 @@ def main():
     )
 
     # 転移学習の実行（GPUを利用すれば1エポック10分程度）
-    model = T5FineTuner(args)
+    model = T5FineTunerKw(args)
     trainer = pl.Trainer(**train_params)
     trainer.fit(model)
 
     # 最終エポックのモデルを保存
-    tokenizer.push_to_hub(f"{TEMP_MODEL_REPO}_epoch{args.num_train_epochs}")
-    model.push(f"{TEMP_MODEL_REPO}_epoch{args.num_train_epochs}")
+    tokenizer.push_to_hub(f"{TEMP_MODEL_REPO}_epoch{args.num_train_epochs}_wo-body")
+    model.push(f"{TEMP_MODEL_REPO}_epoch{args.num_train_epochs}_wo-body")
 
     del model
 
