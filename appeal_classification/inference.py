@@ -4,11 +4,12 @@ from transformers import \
 from src.preprocess import Preprocessor
 
 
-def inference():
+def inference(url):
     
-    df = pd.read_csv("hf://datasets/daiki7069/evaluetion/test_dec.csv")
+    df = pd.read_csv(url)
+    # df['title_org'] = df['title_org'].fillna(" ")
 
-    MODEL_NAME = "daiki7069/add-classification-9"
+    MODEL_NAME = "daiki7069/temp_model_class_epoch20_batch16"
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     tokenizer.do_lower_case = True  # トークナイザーの設定読み込みのバグによる対応
     model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=9)
@@ -19,7 +20,8 @@ def inference():
     classifier = pipeline("text-classification", tokenizer=tokenizer, model=model)
 
     # ここで実際の推論を実行
-    result = df.title_org.apply(classifier)
+    # result = df.title_org.apply(classifier)
+    result = df.generated_title.apply(classifier)
     print(result)
 
     # 結果を表示するために色々変換
@@ -33,8 +35,9 @@ def inference():
     })
     print("推論結果:")
     print(df_result)
-    df_result.to_csv("./out.csv")
+    df_result.to_csv("./firs_app_kw2title_t5-ep20-wobody_pred.csv")
+    return 
 
 
 if __name__ == "__main__":
-    inference()
+    inference("hf://datasets/daiki7069/generated/firs_app_kw2title_t5-ep20-wobody.csv")

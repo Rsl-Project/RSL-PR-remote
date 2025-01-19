@@ -76,7 +76,7 @@ class LearningRateLogger(TrainerCallback):
         plt.ylabel("Loss")
         plt.grid()
         plt.legend(loc=0)
-        plt.savefig(f'graph/{end_epoch}/curb_epoch{end_epoch}_batch{TrainingConfig.per_device_train_batch_size}.png')
+        plt.savefig(f'graph/epoch{end_epoch}/curb_epoch{end_epoch}_batch{TrainingConfig.per_device_train_batch_size}.png')
         plt.clf()
 
         # F値などを表示
@@ -89,5 +89,5 @@ class LearningRateLogger(TrainerCallback):
         plt.ylabel("Value")
         plt.grid()
         plt.legend(loc=0)
-        plt.savefig(f'graph/{end_epoch}/info_epoch{end_epoch}_batch{TrainingConfig.per_device_train_batch_size}.png')
+        plt.savefig(f'graph/epoch{end_epoch}/info_epoch{end_epoch}_batch{TrainingConfig.per_device_train_batch_size}.png')
         plt.clf()

@@ -46,7 +46,7 @@ def generate_tfidf_reports(train_path: str):
 
     os.makedirs("../../top-tfidf-words", exist_ok=True)
     for label, top_words in tfidf_results.items():
-        top_words_df = pd.DataFrame(top_words, columns=['単語', 'スコア'])
+        top_words_df = pd.DataFrame(top_words, columns=['word', 'score'])
         top_words_df.to_csv(f'../../top-tfidf-words/top_words_{label}.csv', index=False, encoding='utf-8-sig')
 
 
