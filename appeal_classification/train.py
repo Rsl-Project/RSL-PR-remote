@@ -123,8 +123,8 @@ def train():
 
     # モデルアップロード
     MODEL_REPO = f"daiki7069/temp_model_class"
-    tokenizer.push_to_hub(MODEL_REPO)
-    model.push_to_hub(MODEL_REPO)
+    tokenizer.push_to_hub(f"{MODEL_REPO}_epoch{training_config.num_train_epochs}_batch{training_config.per_device_train_batch_size}")
+    model.push_to_hub(f"{MODEL_REPO}_epoch{training_config.num_train_epochs}_batch{training_config.per_device_train_batch_size}")
 
     model.to('cpu') # TODO
 

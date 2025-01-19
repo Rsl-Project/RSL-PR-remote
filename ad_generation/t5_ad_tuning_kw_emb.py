@@ -1,10 +1,9 @@
 import argparse
-from src.tuning.dataset_handler_kw import DatasetHandlerKw
+from src.tuning.dataset_handler_kw_emb import DatasetHandlerKwEmb
 from src.util.env import TEST_URL, DEV_URL, TRAIN_URL
-from src.util.env import PRETRAINED_MODEL_NAME
-from src.util.params import args_dict
-from src.util.env import TEMP_MODEL_REPO
-from src.tuning.t5_fine_tuner_kw import T5FineTunerKw
+from src.util.env import PRETRAINED_MODEL_TOKEN_NAME, MODEL_WITH_AA_TOKEN
+from src.util.params_emb import args_dict
+from src.tuning.t5_fine_tuner_kw_emb import T5FineTunerKwEmb
 import torch
 from torch.utils.data import DataLoader
 import pytorch_lightning as pl
@@ -18,12 +17,12 @@ from transformers import (
 
 
 def main():
-    dataset = DatasetHandlerKw(test_url=TEST_URL, dev_url=DEV_URL, train_url=TRAIN_URL)
+    dataset = DatasetHandlerKwEmb(test_url=TEST_URL, dev_url=DEV_URL, train_url=TRAIN_URL)
 
     dataset.csv2tsv()
     
     # トークナイザー（SentencePiece）モデルの読み込み
-    tokenizer = T5Tokenizer.from_pretrained(PRETRAINED_MODEL_NAME, is_fast=True)
+    tokenizer = T5Tokenizer.from_pretrained(PRETRAINED_MODEL_TOKEN_NAME, is_fast=True)
     
     # 学習に用いるハイパーパラメータを設定する
     args_dict.update({
@@ -31,7 +30,7 @@ def main():
         "max_target_length": 64,  # 出力文の最大トークン数
         "train_batch_size":  16,  # 訓練時のバッチサイズ
         "eval_batch_size":   16,  # テスト時のバッチサイズ
-        "num_train_epochs":  8,  # 訓練するエポック数
+        "num_train_epochs":  1,  # 訓練するエポック数
         })
     args = argparse.Namespace(**args_dict)
 
@@ -46,13 +45,13 @@ def main():
     )
 
     # 転移学習の実行（GPUを利用すれば1エポック10分程度）
-    model = T5FineTunerKw(args)
+    model = T5FineTunerKwEmb(args)
     trainer = pl.Trainer(**train_params)
     trainer.fit(model)
 
     # 最終エポックのモデルを保存
-    tokenizer.push_to_hub(f"{TEMP_MODEL_REPO}_epoch{args.num_train_epochs}_wo-body")
-    model.push(f"{TEMP_MODEL_REPO}_epoch{args.num_train_epochs}_wo-body")
+    tokenizer.push_to_hub(f"{MODEL_WITH_AA_TOKEN}_epoch{args.num_train_epochs}_wo-body")
+    model.push(f"{MODEL_WITH_AA_TOKEN}_epoch{args.num_train_epochs}_wo-body")
 
     del model
 

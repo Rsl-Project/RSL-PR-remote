@@ -9,5 +9,5 @@ class TrainingConfig:
     save_strategy: str = "epoch"
     load_best_model_at_end: bool = True
     push_to_hub: bool = True
-    hub_model_name: str = "daiki7069/temp_model_roberta"
+    hub_model_name: str = "daiki7069/temp_model_roberta_log"
     

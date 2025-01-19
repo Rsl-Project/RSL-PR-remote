@@ -37,35 +37,16 @@ def main():
     ])
     df["kw"] = df["kw"].map(lambda s: s.replace(" ", "/"))
 
-    # lp_meta_descriptionから単語を抜き出すためのtf-idf単語リストを読み込む
-    tfidf_words_df_0 = pd.read_csv('./top-tfidf-words/top_words_0.csv')
-    tfidf_words_df_1 = pd.read_csv('./top-tfidf-words/top_words_1.csv')
-    tfidf_words_df_2 = pd.read_csv('./top-tfidf-words/top_words_2.csv')
-    tfidf_words_df_3 = pd.read_csv('./top-tfidf-words/top_words_3.csv')
-    tfidf_words_df_4 = pd.read_csv('./top-tfidf-words/top_words_4.csv')
-    tfidf_words_df_5 = pd.read_csv('./top-tfidf-words/top_words_5.csv')
-    tfidf_words_df_6 = pd.read_csv('./top-tfidf-words/top_words_6.csv')
-    tfidf_words_df_7 = pd.read_csv('./top-tfidf-words/top_words_7.csv')
-    tfidf_words_0 = tfidf_words_df_0['word'].tolist()
-    tfidf_words_1 = tfidf_words_df_1['word'].tolist()
-    tfidf_words_2 = tfidf_words_df_2['word'].tolist()
-    tfidf_words_3 = tfidf_words_df_3['word'].tolist()
-    tfidf_words_4 = tfidf_words_df_4['word'].tolist()
-    tfidf_words_5 = tfidf_words_df_5['word'].tolist()
-    tfidf_words_6 = tfidf_words_df_6['word'].tolist()
-    tfidf_words_7 = tfidf_words_df_7['word'].tolist()
-
     def preprocess_body(text):
         s = normalize_text(text.replace("\n", " "))
         return s.replace("/", " ")
     
     ### kwから生成
-    with open('./my_app_kw2title_t5-ep20-wobody.csv', 'w') as f:
+    with open('./app3_kw2title_t5-ep20-wobody.csv', 'w') as f:
         writer = csv.writer(f)
-        writer.writerow(["asset_id", "kw", "appealing_axis", "variation", "generated_title", "constraint_word"])
-
+        writer.writerow(["asset_id", "kw", "appealing_axis", "variation", "generated_title"])
         index = 0
-        for id, record, description in zip(df["asset_id"].tolist(), df["kw"].tolist(), df["lp_meta_description"].tolist()):
+        for id, record in zip(df["asset_id"].tolist(), df["kw"].tolist()):
             # 前処理とトークナイズを行う
             inputs_kw = [preprocess_body(record)]
             # print(inputs_kw)
@@ -81,59 +62,33 @@ def main():
             ### 生成処理を行う
             for app_axis in range(8):
                 if app_axis == 0:
-                    constraint_word = "."
-                    for word in tfidf_words_0:
-                        if word in description:
-                            constraint_word = word
-                            break
+                    constraint_words = ["格安", "予約", "安値"]
                 elif app_axis == 1:
-                    constraint_word = "."
-                    for word in tfidf_words_1:
-                        if word in description:
-                            constraint_word = word
-                            break
+                    constraint_words = ["無料", "試し", "体験"]
                 elif app_axis == 2:
-                    constraint_word = "."
-                    for word in tfidf_words_2:
-                        if word in description:
-                            constraint_word = word
-                            break      
+                    constraint_words = ["すぐ", "なら", "今日"]
                 elif app_axis == 3:
-                    constraint_word = "."
-                    for word in tfidf_words_3:
-                        if word in description:
-                            constraint_word = word
-                            break                  
+                    constraint_words = ["徒歩", "近く", "周辺"]
                 elif app_axis == 4:
-                    constraint_word = "."
-                    for word in tfidf_words_4:
-                        if word in description:
-                            constraint_word = word
-                            break               
+                    constraint_words = ["予約", "個室", "ok"]
                 elif app_axis == 5:
-                    constraint_word = "."
-                    for word in tfidf_words_5:
-                        if word in description:
-                            constraint_word = word
-                            break                   
+                    constraint_words = ["限定", "向け", "キャンペーン"]
                 elif app_axis == 6:
-                    constraint_word = "."
-                    for word in tfidf_words_6:
-                        if word in description:
-                            constraint_word = word
-                            break
+                    constraint_words = ["比較", "一覧", "公式"]
                 elif app_axis == 7:
-                    constraint_word = "."
-                    for word in tfidf_words_7:
-                        if word in description:
-                            constraint_word = word
-                            break                   
+                    constraint_words = ["ランキング", "最新", "人気"]
                 else:
                     raise ValueError('appaealing_axisは0~7の値です.')
                 
                 constraints = [
                     PhrasalConstraint(
-                        tokenizer(constraint_word, add_special_tokens=False).input_ids,
+                        tokenizer(constraint_words[0], add_special_tokens=True).input_ids,
+                    ),
+                    PhrasalConstraint(
+                        tokenizer(constraint_words[1], add_special_tokens=True).input_ids,
+                    ),
+                    PhrasalConstraint(
+                        tokenizer(constraint_words[2], add_special_tokens=True).input_ids,
                     ),
                 ]
                 outputs_kw = trained_model.generate(
@@ -154,19 +109,19 @@ def main():
                 # 生成されたタイトルを表示する
                 for i, title in enumerate(generated_titles_kw):
                     print(f"[kw{index}] asset_id:{id} appealing_axis:{app_axis} {i+1:2}. {title}")
-                    writer.writerow([id, inputs_kw[0], app_axis, i, generated_titles_kw[0], constraint_word])
+                    writer.writerow([id, inputs_kw[0], app_axis, i, generated_titles_kw[0]])
             
             index += 1
 
 
     ### lp_meta_descriptionから生成
-    with open('./my_app_description2title_t5-ep20-wobody.csv', 'w') as f:
+    with open('./app3_description2title_t5-ep20-wobody.csv', 'w') as f:
         writer = csv.writer(f)
-        writer.writerow(["asset_id", "lp_meta_description", "variation", "generated_title", "constraint_word"])
+        writer.writerow(["asset_id", "lp_meta_description", "variation", "generated_title"])
         index = 0
-        for id, description in zip(df["asset_id"].tolist(), df["lp_meta_description"].tolist()):
+        for id, record in zip(df["asset_id"].tolist(), df["lp_meta_description"].tolist()):
             # 前処理とトークナイズを行う
-            inputs_str = [preprocess_body(description)]
+            inputs_str = [preprocess_body(record)]
             # print(inputs_str)
             batch_str = tokenizer.batch_encode_plus(
                 inputs_str, max_length=MAX_SOURCE_LENGTH, truncation=True,
@@ -180,59 +135,33 @@ def main():
             ### 生成処理を行う
             for app_axis in range(8):
                 if app_axis == 0:
-                    for word in tfidf_words_0:
-                        if word in description:
-                            constraint_word = word
-                            break
-                    constraint_word = " "
+                    constraint_words = ["格安", "予約", "安値"]
                 elif app_axis == 1:
-                    for word in tfidf_words_1:
-                        if word in description:
-                            constraint_word = word
-                            break
-                    constraint_word = " "
+                    constraint_words = ["無料", "試し", "体験"]
                 elif app_axis == 2:
-                    for word in tfidf_words_2:
-                        if word in description:
-                            constraint_word = word
-                            break
-                    constraint_word = " "
+                    constraint_words = ["すぐ", "なら", "今日"]
                 elif app_axis == 3:
-                    for word in tfidf_words_3:
-                        if word in description:
-                            constraint_word = word
-                            break
-                    constraint_word = " "
+                    constraint_words = ["徒歩", "近く", "周辺"]
                 elif app_axis == 4:
-                    for word in tfidf_words_4:
-                        if word in description:
-                            constraint_word = word
-                            break
-                    constraint_word = " "
+                    constraint_words = ["予約", "個室", "ok"]
                 elif app_axis == 5:
-                    for word in tfidf_words_5:
-                        if word in description:
-                            constraint_word = word
-                            break
-                    constraint_word = " "
+                    constraint_words = ["限定", "向け", "キャンペーン"]
                 elif app_axis == 6:
-                    for word in tfidf_words_6:
-                        if word in description:
-                            constraint_word = word
-                            break
-                    constraint_word = " "
+                    constraint_words = ["比較", "一覧", "公式"]
                 elif app_axis == 7:
-                    for word in tfidf_words_7:
-                        if word in description:
-                            constraint_word = word
-                            break
-                    constraint_word = " "
+                    constraint_words = ["ランキング", "最新", "人気"]
                 else:
                     raise ValueError('appaealing_axisは0~7の値です.')
                 
                 constraints = [
                     PhrasalConstraint(
-                        tokenizer(constraint_word[0], add_special_tokens=False).input_ids,
+                        tokenizer(constraint_words[0], add_special_tokens=False).input_ids,
+                    ),
+                    PhrasalConstraint(
+                        tokenizer(constraint_words[1], add_special_tokens=False).input_ids,
+                    ),
+                    PhrasalConstraint(
+                        tokenizer(constraint_words[2], add_special_tokens=False).input_ids,
                     ),
                 ]
 
@@ -252,7 +181,7 @@ def main():
                                     for ids in outputs_str]
                 for i, title in enumerate(generated_titles_str):
                     print(f"[str{index}], asset_id:{id} appealing_axis:{app_axis} {i+1:2}. {title}")
-                    writer.writerow([id, inputs_str[0], app_axis, i, generated_titles_str[0], constraint_word])
+                    writer.writerow([id, inputs_str[0], app_axis, i, generated_titles_str[0]])
 
             index += 1
     
