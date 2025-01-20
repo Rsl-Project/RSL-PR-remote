@@ -14,6 +14,7 @@ print(appealing_axis_true)
 
 name = [0, 1, 2, 3, 4, 5, 6, 7]
 val_mat = confusion_matrix(appealing_axis_true, appealing_axis_pred, labels=name)
+val_mat = pd.DataFrame(val_mat).T.values.tolist()
 acc_score = accuracy_score(appealing_axis_true, appealing_axis_pred)
 rec_score = recall_score(appealing_axis_true, appealing_axis_pred, average=None)
 pre_score = precision_score(appealing_axis_true, appealing_axis_pred, average=None)
@@ -30,8 +31,8 @@ print(f"macro-F1 score: {macro_f1_score}")
 plt.figure(figsize=(16, 16))
 seaborn.heatmap(val_mat, square=True, cbar=True, annot=True, cmap='Blues')
 plt.title("classifier")
-plt.xlabel("predicted")
-plt.ylabel("generated")
+plt.ylabel("predicted")
+plt.xlabel("generated")
 plt.savefig("app_kw2title.png")
 
 with open("./app_kw2title.txt", "w") as f:
